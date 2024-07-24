@@ -2,3 +2,4 @@ streamlit
 cryptocompare
 pandas
 matplotlib
+plotly 
