@@ -61,7 +61,8 @@ def get_crypto_data(symbol, currency, start_date, end_date, interval):
             'volumeto': 'sum'
         }).dropna().reset_index()
 
-    df = df.sort_values(by='time', ascending=False)
+    # Tarihe göre sıralama
+    df = df.sort_values(by='time')
 
     return df
 
@@ -88,7 +89,8 @@ if df is not None and not df.empty:
         xaxis_rangeslider_visible=True,
         yaxis=dict(
             fixedrange=False,
-            tickformat=",.4f"
+            tickformat=",.4f",
+            autorange=True
         ),
         xaxis=dict(
             tickformat="%d-%m-%Y %H:%M",
