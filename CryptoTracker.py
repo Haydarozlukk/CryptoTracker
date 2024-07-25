@@ -5,10 +5,11 @@ import pandas as pd
 import plotly.graph_objs as go
 
 # Kripto para sembolü ve itibari para birimi
-crypto_symbol = st.sidebar.text_input('Kripto Para Sembolü', value='BTC')
+crypto_symbol1 = st.sidebar.text_input('Kripto Para Sembolü 1', value='BTC')
+crypto_symbol2 = st.sidebar.text_input('Kripto Para Sembolü 2', value='ETH')
 currency = st.sidebar.text_input('İtibari Para Birimi', value='USD')
 
-st.title(f"{crypto_symbol}/{currency} Fiyat Grafiği")
+st.title(f"{crypto_symbol1}/{currency} ve {crypto_symbol2}/{currency} Fiyat Grafikleri")
 
 # Başlangıç ve bitiş tarihleri
 start_date = st.sidebar.date_input('Başlangıç Tarihi', value=date(2020, 1, 1))
@@ -62,47 +63,44 @@ def get_crypto_data(symbol, currency, start_date, end_date, interval):
         }).dropna().reset_index()
 
     # Tarihe göre sıralama
-    df = df.sort_values(by='time')
+    df = df.sort_values(by='time', ascending=False)
 
     return df
 
-df = get_crypto_data(crypto_symbol, currency, start_date, end_date, interval)
+# İki farklı kripto para için veri çekme
+df1 = get_crypto_data(crypto_symbol1, currency, start_date, end_date, interval)
+df2 = get_crypto_data(crypto_symbol2, currency, start_date, end_date, interval)
 
-if df is not None and not df.empty:
-    df['open'] = df['open'].map(lambda x: f"{x:,.4f}".replace(",", "X").replace(".", ",").replace("X", "."))
-    df['high'] = df['high'].map(lambda x: f"{x:,.4f}".replace(",", "X").replace(".", ",").replace("X", "."))
-    df['low'] = df['low'].map(lambda x: f"{x:,.4f}".replace(",", "X").replace(".", ",").replace("X", "."))
-    df['close'] = df['close'].map(lambda x: f"{x:,.4f}".replace(",", "X").replace(".", ",").replace("X", "."))
-    df['volumefrom'] = df['volumefrom'].map(lambda x: f"{x:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
-    df['volumeto'] = df['volumeto'].map(lambda x: f"{x:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
-
-    df.columns = ['Tarih', 'Açılış', 'Yüksek', 'Düşük', 'Kapanış', 'Hacim (Miktar)', 'Hacim (Değer)']
-
-    fig = go.Figure()
-
-    fig.add_trace(go.Scatter(x=df['Tarih'], y=df['Kapanış'], mode='lines', name='Kapanış Fiyatı'))
-
-    fig.update_layout(
-        title=f"{crypto_symbol}/{currency} Fiyat Grafiği ({interval})",
-        xaxis_title='Tarih',
-        yaxis_title='Fiyat',
-        xaxis_rangeslider_visible=True,
-        yaxis=dict(
-            fixedrange=False,
-            tickformat=",.4f",
-            autorange=True
-        ),
-        xaxis=dict(
-            tickformat="%d-%m-%Y %H:%M",
-            tickformatstops=[
-                dict(dtickrange=[None, 86400000], value="%H:%M:%S"),
-                dict(dtickrange=[86400000, 604800000], value="%d-%m %H:%M"),
-                dict(dtickrange=[604800000, None], value="%d-%m-%Y")
-            ]
+# İçeriği tam genişliğe yaymak için st.container() kullanma
+with st.container():
+    # İlk grafik
+    if df1 is not None and not df1.empty:
+        fig1 = go.Figure()
+        fig1.add_trace(go.Scatter(x=df1['time'], y=df1['close'], mode='lines', name=f'{crypto_symbol1} Kapanış Fiyatı'))
+        fig1.update_layout(
+            title=f"{crypto_symbol1}/{currency} Fiyat Grafiği ({interval})",
+            xaxis_title='Tarih',
+            yaxis_title='Fiyat',
+            xaxis_rangeslider_visible=True
         )
-    )
+        st.plotly_chart(fig1, use_container_width=True)
 
-    st.plotly_chart(fig)
+    # İkinci grafik
+    if df2 is not None and not df2.empty:
+        fig2 = go.Figure()
+        fig2.add_trace(go.Scatter(x=df2['time'], y=df2['close'], mode='lines', name=f'{crypto_symbol2} Kapanış Fiyatı'))
+        fig2.update_layout(
+            title=f"{crypto_symbol2}/{currency} Fiyat Grafiği ({interval})",
+            xaxis_title='Tarih',
+            yaxis_title='Fiyat',
+            xaxis_rangeslider_visible=True
+        )
+        st.plotly_chart(fig2, use_container_width=True)
 
-    st.subheader('Rakamlar')
-    st.write(df)
+# Tabloları genişletmek için tekrar st.container() kullanma
+with st.container():
+    st.subheader(f'{crypto_symbol1} Rakamlar')
+    st.write(df1)
+
+    st.subheader(f'{crypto_symbol2} Rakamlar')
+    st.write(df2)
