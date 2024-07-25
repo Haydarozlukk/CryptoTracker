@@ -1,5 +1,5 @@
 CryptoTracker
-![CryptoTracker Logo](https://hizliresim.com/31kgcty)
+![CryptoTracker Logo][url=https://hizliresim.com/31kgcty][img]https://i.hizliresim.com/31kgcty.jpg[/img][/url]
 
 
 CryptoTracker, çeşitli kripto para birimlerinin fiyat hareketlerini ve piyasa trendlerini canlı olarak izleyebileceğiniz bir platformdur. Uygulama, kullanıcıların grafiksel karşılaştırmalar yaparak kripto para piyasalarını daha iyi anlamalarına yardımcı olur.
