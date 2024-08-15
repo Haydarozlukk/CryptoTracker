@@ -1,3 +1,4 @@
+
 import streamlit as st
 import cryptocompare
 from datetime import datetime, date
@@ -37,16 +38,21 @@ def get_crypto_data(symbol, currency, start_date, end_date, interval):
         data = cryptocompare.get_historical_price_day(symbol, currency, limit=2000, toTs=end_timestamp)
     
     df = pd.DataFrame(data)
+    
+    if 'time' not in df.columns:
+        st.error("API'den gelen veri beklenen formatta değil veya 'time' sütunu mevcut değil.")
+        return None
+    
     df['time'] = pd.to_datetime(df['time'], unit='s')
     df = df[(df['time'] >= start_date) & (df['time'] <= end_date)]
     
     resample_map = {
-        '4H': '4H',
-        '2H': '2H',
+        '5M': '5T',
+        '15M': '15T',
+        '30M': '30T',
         '1H': '1H',
-        '30M': '30min',
-        '15M': '15min',
-        '5M': '5min',
+        '2H': '2H',
+        '4H': '4H',
         '1D': '1D',
         '1W': '1W',
         '1M': '1M'
@@ -99,8 +105,10 @@ with st.container():
 
 # Tabloları genişletmek için tekrar st.container() kullanma
 with st.container():
-    st.subheader(f'{crypto_symbol1} Rakamlar')
-    st.write(df1)
+    if df1 is not None:
+        st.subheader(f'{crypto_symbol1} Rakamlar')
+        st.write(df1)
 
-    st.subheader(f'{crypto_symbol2} Rakamlar')
-    st.write(df2)
+    if df2 is not None:
+        st.subheader(f'{crypto_symbol2} Rakamlar')
+        st.write(df2)
